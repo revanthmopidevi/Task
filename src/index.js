@@ -98,7 +98,7 @@ app.get('/tasks/:id', async (req, res) => {
 // Update task by id
 app.patch('tasks/:id', async (req, res) => {
     const updates = Object.keys(req.body)
-    const allowedUpdates = ['description', 'status']
+    const allowedUpdates = ['status', 'description']
     const isValidOperation = updates.every((update) => {
         return allowedUpdates.includes(update)
     })
@@ -108,11 +108,12 @@ app.patch('tasks/:id', async (req, res) => {
     }
 
     try {
-        const task = await Task.findByIdAndUpdate(req.params.id, req.body, {new: true, runValidators: true})
+        const task = await Task.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true })
 
         if (!task) {
             return res.status(404).send()
         }
+        res.send(task)
     } catch (error) {
         res.status(400).send()
     }
