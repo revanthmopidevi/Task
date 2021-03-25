@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema({
     username: {
         type: String,
         lowercase:true,
+        unique: true,
         trim:true,
         required: true
     },
@@ -36,6 +37,7 @@ const userSchema = new mongoose.Schema({
     email: {
         type: String,
         require: true,
+        unique: true,
         lowercase: true,
         validate(value) {
             if (!validator.isEmail(value)) {
@@ -44,6 +46,20 @@ const userSchema = new mongoose.Schema({
         }
     }
 })
+
+userSchema.statics.findByCredentials = async (username, password) => {
+    const user = await User.findOne({username: username})
+    
+    if (!user) {
+        throw new Error("Wrong Username or Password.")
+    }
+    const passwordOk = await bcrypt.compare(password, user.password)
+    if (!passwordOk) {
+        throw new Error("Wrong Username or Password.")
+    }
+
+    return user
+}
 
 userSchema.pre('save', async function (next) {
     const user = this
