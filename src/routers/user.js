@@ -10,7 +10,7 @@ router.post('/users', async (req, res) => {
     try {
         await user.save()
         const token = await user.generateAuthToken()
-        res.status(201).send({user: user, token: token})
+        res.status(201).send({user: user.getPublicProfile(), token: token})
     } catch (error) {
         res.status(400).send()
     }
@@ -20,7 +20,7 @@ router.post('/users/login', async (req, res) => {
     try {
         const user = await User.findByCredentials(req.body.username, req.body.password)
         const token = await user.generateAuthToken()
-        res.send({user: user, token: token})
+        res.send({user: user.getPublicProfile(), token: token})
     } catch (error) {
         res.status(400).send(error)
     }
@@ -50,10 +50,10 @@ router.post('/users/logoutAll', auth, async (req, res) => {
 })
 // Get user
 router.get('/users/me', auth, async (req, res) => {
-    res.send(req.user)
+    res.send(req.user.getPublicProfile())
 })
 // Update user by id
-router.patch('/users/:id', async (req, res) => {
+router.patch('/users/update', auth, async (req, res) => {
     const updates = Object.keys(req.body)
     const allowedUpdates = ['name', 'password', 'age']
     const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
@@ -63,12 +63,12 @@ router.patch('/users/:id', async (req, res) => {
     }
 
     try {
-        const user = await User.findById(req.params.id)
+        const user = await User.findById(req.user._id)
         /* const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true }) */
         
-        if (!user) {
-            return res.status(404).send()
-        }
+        // if (!user) {
+        //     return res.status(404).send()
+        // }
 
         updates.forEach((update) => {
             user[update] = req.body[update]
@@ -80,13 +80,14 @@ router.patch('/users/:id', async (req, res) => {
     }
 })
 
-router.delete('/users/:id', async (req, res) => {
+router.delete('/users/delete', auth, async (req, res) => {
     try {
-        const user = await User.findByIdAndDelete(req.params.id)
-        if (!user) {
-            return res.status(404).send()
-        }
-        res.send(user)
+        // const user = await User.findByIdAndDelete(req.user._id)
+        // if (!user) {
+        //     return res.status(404).send()
+        // }
+        await req.user.remove()
+        res.send(req.user.getPublicProfile())
     } catch (error) {
         res.status(400).send(error)
     }
