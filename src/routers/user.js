@@ -63,7 +63,7 @@ router.patch('/users/update', auth, async (req, res) => {
     }
 
     try {
-        const user = await User.findById(req.user._id)
+        // const user = await User.findById(req.user._id)
         /* const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true }) */
         
         // if (!user) {
@@ -71,10 +71,10 @@ router.patch('/users/update', auth, async (req, res) => {
         // }
 
         updates.forEach((update) => {
-            user[update] = req.body[update]
+            req.user[update] = req.body[update]
         })
-        await user.save()
-        res.send(user)
+        await req.user.save()
+        res.send(req.user)
     } catch (error) {
         res.status(400).send(error)
     }
