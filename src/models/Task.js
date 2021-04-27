@@ -4,7 +4,7 @@ const Task = mongoose.model('Task', {
     username: {
         type: String,
         required: true,
-        trim : true
+        ref: 'User'
     },
     description: {
         type: String,
