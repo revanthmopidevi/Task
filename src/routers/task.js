@@ -6,7 +6,6 @@ const auth = require('../middleware/auth')
 
 // Add task
 router.post('/tasks', auth, async (req, res) => {
-    //const task = new Task(req.body)
     const task = new Task({
         ...req.body,
         owner: req.user._id
@@ -20,9 +19,18 @@ router.post('/tasks', auth, async (req, res) => {
 })
 // Get all tasks
 router.get('/tasks/', auth, async (req, res) => {
+    const match = {}
+    if (req.query.status) {
+        match.status = req.query.status === 'true'
+    }
+
     try {
-        const tasks = await Task.find({owner: req.user._id})
-        res.send(tasks)
+        await req.user.populate({
+            path: 'tasks',
+            match: match
+        }).execPopulate()
+        // const tasks = await Task.find({owner: req.user._id})
+        res.send(req.user.tasks)
     } catch (error) {
         res.status(500).send()
     }
