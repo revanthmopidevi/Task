@@ -17,17 +17,23 @@ router.post('/tasks', auth, async (req, res) => {
         res.status(400).send(error)
     }
 })
-// Get all tasks
+// GET /tasks?status=true
+// GET /tasks?limit=5&skip=0
 router.get('/tasks/', auth, async (req, res) => {
     const match = {}
     if (req.query.status) {
         match.status = req.query.status === 'true'
     }
 
+
     try {
         await req.user.populate({
             path: 'tasks',
-            match: match
+            match: match,
+            options: {
+                limit: parseInt(req.query.limit),
+                skip: parseInt(req.query.skip)
+            }
         }).execPopulate()
         // const tasks = await Task.find({owner: req.user._id})
         res.send(req.user.tasks)
