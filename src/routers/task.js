@@ -19,12 +19,19 @@ router.post('/tasks', auth, async (req, res) => {
 })
 // GET /tasks?status=true
 // GET /tasks?limit=5&skip=0
+// GET /tasks?sortBy=createdAt:desc
 router.get('/tasks/', auth, async (req, res) => {
     const match = {}
+    const sort = {}
+
     if (req.query.status) {
         match.status = req.query.status === 'true'
     }
 
+    if (req.query.sortBy) {
+        const parts = req.query.sortBy.split(':')
+        sort[parts[0]] = parts[1] === "desc" ? -1 : 1 
+    }
 
     try {
         await req.user.populate({
@@ -32,7 +39,8 @@ router.get('/tasks/', auth, async (req, res) => {
             match: match,
             options: {
                 limit: parseInt(req.query.limit),
-                skip: parseInt(req.query.skip)
+                skip: parseInt(req.query.skip),
+                sort: sort
             }
         }).execPopulate()
         // const tasks = await Task.find({owner: req.user._id})
