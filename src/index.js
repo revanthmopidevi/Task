@@ -14,12 +14,13 @@ app.use(express.json())
 app.use(userRouter)
 app.use(taskRouter)
 
-const main = async () => {
-    const task = await Task.findById('6086b3a7dbab3f4164a75d51')
-    console.log(task.username)
-}
+// const main = async () => {
+//     const user = await User.findById('6098dc068160c7468488996e')
+//     await user.populate('tasks').execPopulate()
+//     console.log(user.tasks)
+// }
 
-main()
+// main()
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`)

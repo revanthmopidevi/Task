@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 
 const Task = mongoose.model('Task', {
-    username: {
+    owner: {
         type: String,
         required: true,
         ref: 'User'
